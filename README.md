@@ -16,6 +16,7 @@ Link do expo [Expo](https://expo.dev)
    npm expo run
    ```
 
+
    Ou (instalar o apk do release do app)
 
    Link do APP [APP-Bloomy](https://drive.google.com/drive/folders/1ID2ijVfR2L0oQU00ETcTPCXnAkjSxsKz?usp=sharing) 
