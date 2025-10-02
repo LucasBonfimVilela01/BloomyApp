@@ -54,7 +54,6 @@ export default function AccountPage() {
       setEditing(false);
       setPassword('');
     } catch (error) {
-      // Substituindo error.message por Alert genérico
       Alert.alert('Erro', 'Falha ao atualizar informações. Tente novamente.');
     } finally {
       setLoading(false);
@@ -104,7 +103,6 @@ export default function AccountPage() {
 
   return (
     <BackgroundWrapper>
-      {/* Removido o wrapper de cor para preservar o fundo com imagem */}
       <ScreenContainer>
         <View style={styles.container}>
           <ScreenTitle style={styles.title}>Minha Conta</ScreenTitle>

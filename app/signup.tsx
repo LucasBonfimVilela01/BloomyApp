@@ -45,7 +45,6 @@ export default function SignUpPage() {
       Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
       router.replace('/mainpage');
     } catch (error) {
-      // Substituindo error.code e error.message por Alert genéricos
       Alert.alert('Erro', 'Falha ao criar conta. Verifique os dados informados e tente novamente.');
     } finally {
       setLoading(false);

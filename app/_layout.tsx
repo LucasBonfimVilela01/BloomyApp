@@ -4,12 +4,14 @@ import { Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { AuthProvider, useAuth } from '../src/authContext';
+import { NotificationsSettingsProvider } from '../src/notifications/NotificationsSettingsContext';
 
 function LayoutInner() {
   const router = useRouter();
   const pathname = usePathname();
   const [fontsLoaded] = useFonts({
     'Bebas-Neue': require('../assets/fonts/BebasNeue-Regular.ttf'),
+    'LuckiestGuy-Regular': require('../assets/fonts/LuckiestGuy-Regular.ttf'),
   });
   const { user, loading } = useAuth();
 
@@ -153,7 +155,9 @@ function LayoutInner() {
 export default function AppLayout() {
   return (
     <AuthProvider>
-      <LayoutInner />
+      <NotificationsSettingsProvider>
+        <LayoutInner />
+      </NotificationsSettingsProvider>
     </AuthProvider>
   );
 }

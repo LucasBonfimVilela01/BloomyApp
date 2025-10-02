@@ -43,12 +43,14 @@
         }
       ],
       "expo-font",
+      "expo-notifications",
       [
         "@react-native-firebase/app",
         {
           "androidGoogleServicesFile": "./google-services.json"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
