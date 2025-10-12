@@ -1,9 +1,11 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Stack, usePathname, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { PasswordConfirmModal } from '../assets/components';
 import { AuthProvider, useAuth } from '../src/authContext';
+import { auth } from '../src/firebaseconfig';
 import { NotificationsSettingsProvider } from '../src/notifications/NotificationsSettingsContext';
 
 function LayoutInner() {
@@ -14,6 +16,8 @@ function LayoutInner() {
     'LuckiestGuy-Regular': require('../assets/fonts/LuckiestGuy-Regular.ttf'),
   });
   const { user, loading } = useAuth();
+  const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
+  const [targetRoute, setTargetRoute] = React.useState<string | null>(null);
 
   // Redireciona após login/signup para /mainpage e após logout para /
   useEffect(() => {
@@ -41,114 +45,150 @@ function LayoutInner() {
     );
   }
 
+  function openConfirmPassword(route: string) {
+    // Se não há usuário logado, redireciona para login
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    // Verifica se o provedor de autenticação permite senha (email/password)
+    const hasPasswordProvider = auth.currentUser?.providerData?.some((p) => p.providerId === 'password') ?? false;
+    if (!hasPasswordProvider || !auth.currentUser?.email) {
+      Alert.alert('Reautenticação indisponível', 'Sua conta não suporta reautenticação por senha.');
+      return;
+    }
+
+    setTargetRoute(route);
+    setConfirmModalVisible(true);
+  }
+
+  function handleModalClose() {
+    setConfirmModalVisible(false);
+    setTargetRoute(null);
+  }
+
+  function handleConfirmed(route?: string | null) {
+    if (route) router.push(route as any);
+  }
+
   return (
-    <Stack
-      screenOptions={{
-        headerTitleAlign: 'center',
-        headerShown: true,
-        headerStyle: { backgroundColor: '#BA68C8' },
-        headerTintColor: '#fff',
-        headerTitle: () => (
-          <Image
-            source={require('../assets/images/LogoBloomySemFundo.png')}
-            style={styles.headerLogo}
-            resizeMode="contain"
-          />
-        ),
-        contentStyle: { backgroundColor: '#F9E9FF' }, // Fundo sólido para telas sem imagem
-      }}
-    >
-      {/* Index agora sem header */}
-      <Stack.Screen
-        name="index"
-        options={{
-          headerShown: false,
-        }}
-      />
-
-      {/* Mainpage com header customizado */}
-      <Stack.Screen
-        name="mainpage"
-        options={{
+    <>
+      <Stack
+        screenOptions={{
+          headerTitleAlign: 'center',
           headerShown: true,
-          headerLeft: () =>
-            router.canGoBack() ? (
-              <Pressable onPress={() => router.back()}>
-                <Ionicons
-                  name="chevron-back"
-                  size={24}
-                  color="#fff"
-                  style={styles.headerIcon}
-                />
-              </Pressable>
-            ) : null,
-          headerRight: () => (
-            <View style={styles.headerRightContainer}>
-              <Pressable
-                onPress={() => router.push('/settingspage')}
-                style={({ pressed }) => [styles.circleButton, pressed && { opacity: 0.8 }]}
-              >
-                <FontAwesome name="cog" size={20} color="#fff" />
-              </Pressable>
-              <Pressable
-                onPress={() => router.push('/accountpage')}
-                style={({ pressed }) => [styles.circleButton, pressed && { opacity: 0.8 }]}
-              >
-                <Ionicons name="person-sharp" size={20} color="#fff" />
-              </Pressable>
-            </View>
+          headerStyle: { backgroundColor: '#BA68C8' },
+          headerTintColor: '#fff',
+          headerTitle: () => (
+            <Image
+              source={require('../assets/images/LogoBloomySemFundo.png')}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
           ),
+          contentStyle: { backgroundColor: '#F9E9FF' }, // Fundo sólido para telas sem imagem
         }}
-      />
+      >
+        {/* Index agora sem header */}
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
 
-      {/* Tela de Login (sem header) */}
-      <Stack.Screen
-        name="login"
-        options={{
-          title: 'Login',
-          headerShown: false,
-          headerLeft: () =>
-            router.canGoBack() ? (
-              <Pressable onPress={() => router.back()}>
-                <Ionicons
-                  name="chevron-back"
-                  size={24}
-                  color="black"
-                  style={styles.headerIcon}
-                />
-              </Pressable>
-            ) : null,
-          headerRight: () => (
-            <View style={styles.headerRightContainer}>
-              <Pressable onPress={() => router.push('/settingspage')}>
-                <FontAwesome
-                  name="cog"
-                  size={24}
-                  color="black"
-                  style={styles.headerIcon}
-                />
-              </Pressable>
-              <Pressable onPress={() => router.push('/accountpage')}>
-                <Ionicons
-                  name="person-sharp"
-                  size={24}
-                  color="black"
-                  style={styles.headerIcon}
-                />
-              </Pressable>
-            </View>
-          ),
-        }}
-      />
+        {/* Mainpage com header customizado */}
+        <Stack.Screen
+          name="mainpage"
+          options={{
+            headerShown: true,
+            headerLeft: () =>
+              router.canGoBack() ? (
+                <Pressable onPress={() => router.back()}>
+                  <Ionicons
+                    name="chevron-back"
+                    size={24}
+                    color="#fff"
+                    style={styles.headerIcon}
+                  />
+                </Pressable>
+              ) : null,
+            headerRight: () => (
+              <View style={styles.headerRightContainer}>
+                <Pressable
+                  onPress={() => openConfirmPassword('/settingspage')}
+                  style={({ pressed }) => [styles.circleButton, pressed && { opacity: 0.8 }]}
+                >
+                  <FontAwesome name="cog" size={20} color="#fff" />
+                </Pressable>
+                <Pressable
+                  onPress={() => openConfirmPassword('/accountpage')}
+                  style={({ pressed }) => [styles.circleButton, pressed && { opacity: 0.8 }]}
+                >
+                  <Ionicons name="person-sharp" size={20} color="#fff" />
+                </Pressable>
+              </View>
+            ),
+          }}
+        />
 
-      {/* Tela de Cadastro - Header Escondido */}
-      <Stack.Screen
-        name="signup"
-        options={{
-          headerShown: false,
-        }}
+        {/* Tela de Login (sem header) */}
+        <Stack.Screen
+          name="login"
+          options={{
+            title: 'Login',
+            headerShown: false,
+            headerLeft: () =>
+              router.canGoBack() ? (
+                <Pressable onPress={() => router.back()}>
+                  <Ionicons
+                    name="chevron-back"
+                    size={24}
+                    color="black"
+                    style={styles.headerIcon}
+                  />
+                </Pressable>
+              ) : null,
+            headerRight: () => (
+              <View style={styles.headerRightContainer}>
+                <Pressable onPress={() => openConfirmPassword('/settingspage')}>
+                  <FontAwesome
+                    name="cog"
+                    size={24}
+                    color="black"
+                    style={styles.headerIcon}
+                  />
+                </Pressable>
+                <Pressable onPress={() => openConfirmPassword('/accountpage')}>
+                  <Ionicons
+                    name="person-sharp"
+                    size={24}
+                    color="black"
+                    style={styles.headerIcon}
+                  />
+                </Pressable>
+              </View>
+            ),
+          }}
+        />
+
+        {/* Tela de Cadastro - Header Escondido */}
+        <Stack.Screen
+          name="signup"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+
+      <PasswordConfirmModal
+        visible={confirmModalVisible}
+        targetRoute={targetRoute}
+        onRequestClose={handleModalClose}
+        onConfirmed={handleConfirmed}
       />
-    </Stack>
+    </>
   );
 }
 
