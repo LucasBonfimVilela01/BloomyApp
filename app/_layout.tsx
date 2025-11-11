@@ -172,8 +172,8 @@ function LayoutInner() {
             ),
           }}
         />
-
-        {/* Tela de Cadastro - Header Escondido */}
+  
+        {/* Tela de Cadastro (sem header) */}
         <Stack.Screen
           name="signup"
           options={{
