@@ -14,32 +14,32 @@ export default function SettingsPage() {
                 <View style={styles.checkboxcontainer}>
                     <View style={styles.row}>
                         <Text style={styles.checkboxlabel}>Ativar notificações</Text>
-                                                <SquareSwitch
-                                                    value={allEnabled}
-                                                    onValueChange={setAllEnabled}
-                                                />
+                        <SquareSwitch
+                            value={allEnabled}
+                            onValueChange={setAllEnabled}
+                        />
                     </View>
 
                     <LinhaEspacamento />
 
                     <View style={styles.row}>
                         <Text style={styles.checkboxlabel}>Ativar Lembretes de uso</Text>
-                                                <SquareSwitch
-                                                    value={usageEnabled}
-                                                    onValueChange={setUsageEnabled}
-                                                    disabled={!allEnabled}
-                                                />
+                        <SquareSwitch
+                            value={usageEnabled}
+                            onValueChange={setUsageEnabled}
+                            disabled={!allEnabled}
+                        />
                     </View>
 
                     <LinhaEspacamento />
 
                     <View style={styles.row}>
                         <Text style={styles.checkboxlabel}>Ativar modo pomodoro</Text>
-                                                <SquareSwitch
-                                                    value={pomodoroEnabled}
-                                                    onValueChange={setPomodoroEnabled}
-                                                    disabled={!allEnabled}
-                                                />
+                        <SquareSwitch
+                            value={pomodoroEnabled}
+                            onValueChange={setPomodoroEnabled}
+                            disabled={!allEnabled}
+                        />
                     </View>
 
                 </View>
