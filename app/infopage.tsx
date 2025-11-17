@@ -7,7 +7,7 @@ export default function InfoPage() {
             <View style={styles.maincontainer}>
                 <Text style={styles.title}>Sobre o Projeto</Text>
                 <View style={styles.textcontainer}>
-                    <Text style={{ textAlign: 'center' }}>A Bloomy é um projeto criado em 2025.
+                    <Text style={{ textAlign: 'justify' }}>A Bloomy é um projeto criado em 2025.
                         O aplicativo tem o foco em auxiliar ensino de tantas crianças que não se adequam ao ensino tradicional,
                         oferecendo ferramentas que promovem o aprendizado de forma lúdica e interativa.
                         Sempre comprometidos a proporcionar experiências positivas para todos os usuários.
