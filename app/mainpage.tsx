@@ -31,6 +31,7 @@ const materias: Materia[] = [
     rota: '/mainpage'
   },
   {
+    
     id: 3,
     titulo: 'Ciências',
     descricao: 'Descubra os mistérios da natureza, biologia, química e física.',
