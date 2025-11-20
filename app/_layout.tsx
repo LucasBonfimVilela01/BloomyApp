@@ -1,6 +1,7 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Stack, usePathname, useRouter } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { PasswordConfirmModal } from '../assets/components';
@@ -8,16 +9,31 @@ import { AuthProvider, useAuth } from '../src/authContext';
 import { auth } from '../src/firebaseconfig';
 import { NotificationsSettingsProvider } from '../src/notifications/NotificationsSettingsContext';
 
+// Previne splash screen de esconder automaticamente
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 function LayoutInner() {
   const router = useRouter();
   const pathname = usePathname();
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     'Bebas-Neue': require('../assets/fonts/BebasNeue-Regular.ttf'),
     'LuckiestGuy-Regular': require('../assets/fonts/LuckiestGuy-Regular.ttf'),
   });
   const { user, loading } = useAuth();
   const [confirmModalVisible, setConfirmModalVisible] = React.useState(false);
   const [targetRoute, setTargetRoute] = React.useState<string | null>(null);
+
+  // Esconde splash screen quando tudo estiver pronto
+  useEffect(() => {
+    console.log('📱 App state:', { fontsLoaded, fontError: !!fontError, authLoading: loading });
+    
+    if ((fontsLoaded || fontError) && !loading) {
+      console.log('✅ Escondendo splash screen...');
+      SplashScreen.hideAsync()
+        .then(() => console.log('✅ Splash screen escondida'))
+        .catch((err) => console.log('ℹ️ Splash já escondida:', err.message));
+    }
+  }, [fontsLoaded, fontError, loading]);
 
   // Redireciona após login/signup para /mainpage e após logout para /
   useEffect(() => {

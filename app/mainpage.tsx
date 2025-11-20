@@ -21,7 +21,7 @@ const materias: Materia[] = [
     titulo: 'Matemática',
     descricao: 'Explore números, álgebra, geometria e muito mais. Desenvolva seu raciocínio lógico!',
     imagem: require('@/assets/images/MatériaMatemática.png'),
-    rota: '/mainpage'
+    rota: '/matematica'
   },
   {
     id: 2,
@@ -31,7 +31,6 @@ const materias: Materia[] = [
     rota: '/mainpage'
   },
   {
-    
     id: 3,
     titulo: 'Ciências',
     descricao: 'Descubra os mistérios da natureza, biologia, química e física.',
@@ -92,7 +91,7 @@ export default function MainPage() {
             <View style={pageStyles.ultimaUniButton}> 
               <CustomButton
                   title="Começar"
-                  onPress={() => router.replace('/mainpage')}
+                  onPress={() => router.push('/FaseMatematica')}
                   variant="primary"
                 />
             </View>  
@@ -116,7 +115,7 @@ export default function MainPage() {
               {/* Conteúdo do Carrossel */}
               <Pressable 
                 style={pageStyles.carrosselItem}
-                onPress={() => router.replace(currentMateria.rota as any)}
+                onPress={() => router.push(currentMateria.rota as any)}
               >
                 {/* Seção de Textos (60%) */}
                 <View style={pageStyles.carrosselTextos}>

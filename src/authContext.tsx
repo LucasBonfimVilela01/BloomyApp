@@ -14,11 +14,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let unsubscribe: (() => void) | undefined;
+
+    // Timeout de segurança: força conclusão após 5s
+    timeoutId = setTimeout(() => {
+      console.warn('⏱️ Firebase auth timeout (5s) - forçando conclusão');
       setLoading(false);
-    });
-    return () => unsub();
+    }, 5000);
+
+    try {
+      unsubscribe = onAuthStateChanged(
+        auth,
+        (u) => {
+          console.log('🔐 Auth state:', u ? `Logado (${u.email})` : 'Deslogado');
+          setUser(u);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        },
+        (error) => {
+          console.error('❌ Erro Firebase auth:', error);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        }
+      );
+    } catch (error) {
+      console.error('❌ Erro ao criar listener Firebase:', error);
+      setLoading(false);
+      clearTimeout(timeoutId);
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const value = useMemo(() => ({ user, loading }), [user, loading]);
