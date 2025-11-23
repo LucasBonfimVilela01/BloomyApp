@@ -1,4 +1,5 @@
 import { CustomButton, FaseCard, ScreenContainer } from "@/assets/components";
+import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function FaseMatematica() {
@@ -39,7 +40,7 @@ export default function FaseMatematica() {
                     <View style={pageStyles.buttonContainer}>
                         <CustomButton
                             title="Teste"
-                            onPress={() => console.log("Iniciar Fase pressionado")}
+                            onPress={() => router.push('/testepage')}
                             variant="primary"
                         />
                     </View>

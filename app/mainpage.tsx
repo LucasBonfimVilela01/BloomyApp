@@ -3,8 +3,8 @@ import ScreenContainer from '@/assets/components/ScreenContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { default as React, useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { default as React, useEffect, useRef, useState } from 'react';
+import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { auth } from './firebaseconfig.js';
 
 interface Materia {
@@ -49,6 +49,8 @@ const materias: Materia[] = [
 export default function MainPage() {
   const [user, setUser] = useState<User | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -57,15 +59,47 @@ export default function MainPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % materias.length);
+  const animateTransition = (direction: 'next' | 'prev') => {
+    // Fade out e slide
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: direction === 'next' ? -50 : 50,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Atualiza o índice
+      if (direction === 'next') {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % materias.length);
+      } else {
+        setCurrentIndex((prevIndex) => 
+          prevIndex === 0 ? materias.length - 1 : prevIndex - 1
+        );
+      }
+      // Fade in e slide de volta
+      slideAnim.setValue(direction === 'next' ? 50 : -50);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
   };
 
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? materias.length - 1 : prevIndex - 1
-    );
-  };
+  const handleNext = () => animateTransition('next');
+  const handlePrev = () => animateTransition('prev');
 
   const currentMateria = materias[currentIndex];
 
@@ -113,36 +147,46 @@ export default function MainPage() {
               </Pressable>
 
               {/* Conteúdo do Carrossel */}
-              <Pressable 
-                style={pageStyles.carrosselItem}
-                onPress={() => router.push(currentMateria.rota as any)}
+              <Animated.View
+                style={[
+                  pageStyles.carrosselItem,
+                  {
+                    opacity: fadeAnim,
+                    transform: [{ translateX: slideAnim }],
+                  },
+                ]}
               >
-                {/* Seção de Textos (60%) */}
-                <View style={pageStyles.carrosselTextos}>
-                  {/* Título (30%) */}
-                  <View style={pageStyles.carrosselTituloContainer}>
-                    <Text style={pageStyles.carrosselTitulo}>
-                      {currentMateria.titulo}
-                    </Text>
+                <Pressable 
+                  style={{ flex: 1, flexDirection: 'row' }}
+                  onPress={() => router.push(currentMateria.rota as any)}
+                >
+                  {/* Seção de Textos (60%) */}
+                  <View style={pageStyles.carrosselTextos}>
+                    {/* Título (30%) */}
+                    <View style={pageStyles.carrosselTituloContainer}>
+                      <Text style={pageStyles.carrosselTitulo}>
+                        {currentMateria.titulo}
+                      </Text>
+                    </View>
+                    
+                    {/* Descrição (70%) */}
+                    <View style={pageStyles.carrosselDescricaoContainer}>
+                      <Text style={pageStyles.carrosselDescricao}>
+                        {currentMateria.descricao}
+                      </Text>
+                    </View>
                   </View>
-                  
-                  {/* Descrição (70%) */}
-                  <View style={pageStyles.carrosselDescricaoContainer}>
-                    <Text style={pageStyles.carrosselDescricao}>
-                      {currentMateria.descricao}
-                    </Text>
-                  </View>
-                </View>
 
-                {/* Seção de Imagem (40%) */}
-                <View style={pageStyles.carrosselImagemContainer}>
-                  <Image 
-                    source={currentMateria.imagem}
-                    style={pageStyles.carrosselImagem}
-                    resizeMode="cover"
-                  />
-                </View>
-              </Pressable>
+                  {/* Seção de Imagem (40%) */}
+                  <View style={pageStyles.carrosselImagemContainer}>
+                    <Image 
+                      source={currentMateria.imagem}
+                      style={pageStyles.carrosselImagem}
+                      resizeMode="cover"
+                    />
+                  </View>
+                </Pressable>
+              </Animated.View>
 
               {/* Seta Direita */}
               <Pressable 
@@ -239,7 +283,7 @@ const pageStyles = StyleSheet.create({
   },
 
   carrosselDescricao: {
-    fontSize: 16,
+    fontSize: 25,
     fontFamily: 'Bebas-Neue',
     color: '#7253B5',
     lineHeight: 22,
